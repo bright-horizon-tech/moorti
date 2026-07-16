@@ -33,8 +33,10 @@ export const LandingIntro: React.FC = () => {
   const wordRefs = useRef<(HTMLDivElement | null)[]>([]);
   const finishedRef = useRef(false);
   const progressRef = useRef(0);
-  const timelineRef = useRef<gsap.core.Timeline | null>(null);
-  const touchYRef = useRef(0);
+    const timelineRef = useRef<gsap.core.Timeline | null>(null);
+    const touchYRef = useRef(0);
+    const targetProgressRef = useRef(0);
+    const smoothRafRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (finishedRef.current) return;
@@ -127,6 +129,25 @@ export const LandingIntro: React.FC = () => {
       if (p >= 0.999) finishIntro();
     };
 
+    // Smoothly ease the actual timeline toward the touch target so a single
+    // swipe reveals only a few greetings gradually instead of dumping them all.
+    const startSmoothing = () => {
+      if (smoothRafRef.current != null) return;
+      const tickSmooth = () => {
+        const diff = targetProgressRef.current - progressRef.current;
+        if (Math.abs(diff) < 0.0005) {
+          progressRef.current = targetProgressRef.current;
+          tl.progress(progressRef.current);
+          if (progressRef.current >= 0.999) finishIntro();
+          smoothRafRef.current = null;
+          return;
+        }
+        setProgress(progressRef.current + diff * 0.08);
+        smoothRafRef.current = requestAnimationFrame(tickSmooth);
+      };
+      smoothRafRef.current = requestAnimationFrame(tickSmooth);
+    };
+
     // Wheel drives overlay progress only — never moves the base page
     const onWheel = (e: WheelEvent) => {
       if (finishedRef.current) return;
@@ -146,7 +167,14 @@ export const LandingIntro: React.FC = () => {
       const y = e.touches[0]?.clientY ?? touchYRef.current;
       const delta = touchYRef.current - y;
       touchYRef.current = y;
-      setProgress(progressRef.current + delta * 0.0018);
+      // Much lower sensitivity + eased toward a target so one swipe only
+      // advances a few greetings instead of exhausting the whole timeline.
+      targetProgressRef.current = gsap.utils.clamp(
+        0,
+        1,
+        targetProgressRef.current + delta * 0.00035
+      );
+      startSmoothing();
     };
 
     // Block keyboard page scroll during overlay
@@ -172,6 +200,7 @@ export const LandingIntro: React.FC = () => {
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('keydown', onKeyDown);
+      if (smoothRafRef.current != null) cancelAnimationFrame(smoothRafRef.current);
       tl.kill();
       document.documentElement.classList.remove('intro-active');
     };
