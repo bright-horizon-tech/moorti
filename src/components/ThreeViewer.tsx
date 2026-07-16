@@ -6,13 +6,11 @@ import { Loader2, AlertCircle, RotateCcw, Info } from 'lucide-react';
 
 interface ThreeViewerProps {
   modelPath: string;
-  texturePath: string;
   fallbackType: 'ganesha' | 'radha_krishna';
 }
 
 export const ThreeViewer: React.FC<ThreeViewerProps> = ({
   modelPath,
-  texturePath,
   fallbackType,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -213,42 +211,8 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({
 
     scene.add(pedestalGroup);
 
-    // --- LOAD MODEL & TEXTURE ---
-    let loadedTexture: THREE.Texture | null = null;
-
-    const textureLoader = new THREE.TextureLoader();
+    // --- LOAD MODEL ---
     const gltfLoader = new GLTFLoader();
-
-    /**
-     * Force-apply the loaded texture to EVERY mesh in the object tree.
-     * Creates a brand new MeshStandardMaterial for each mesh to guarantee texture shows.
-     */
-    const forceApplyTexture = (obj: THREE.Object3D, tex: THREE.Texture) => {
-      tex.colorSpace = THREE.SRGBColorSpace;
-      tex.flipY = false; // GLB models expect flipY=false
-      tex.needsUpdate = true;
-
-      obj.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          child.castShadow = true;
-          child.receiveShadow = true;
-
-          // Always create a fresh MeshStandardMaterial to guarantee texture is applied
-          const newMat = new THREE.MeshStandardMaterial({
-            map: tex,
-            roughness: 0.35,
-            metalness: 0.05,
-            envMapIntensity: 0.8,
-          });
-          // Preserve vertex colors if present
-          if (child.geometry.attributes.color) {
-            newMat.vertexColors = true;
-          }
-          child.material = newMat;
-          child.material.needsUpdate = true;
-        }
-      });
-    };
 
     const createProceduralFallback = () => {
       setIsUsingFallback(true);
@@ -333,31 +297,11 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({
       setLoading(false);
     };
 
-    const loadTexturePromise = (path: string): Promise<THREE.Texture> =>
-      new Promise((resolve, reject) => {
-        textureLoader.load(path, resolve, undefined, (err: any) => reject(err));
-      });
-
     const loadRealAsset = async () => {
       try {
         setProgress(10);
-        
-        // 1. Load texture (jpg -> jpeg fallback)
-        let texPath = texturePath;
-        try {
-          loadedTexture = await loadTexturePromise(texPath);
-        } catch {
-          if (texPath.endsWith('.jpg')) texPath = texPath.slice(0, -4) + '.jpeg';
-          else if (texPath.endsWith('.jpeg')) texPath = texPath.slice(0, -5) + '.jpg';
-          try {
-            loadedTexture = await loadTexturePromise(texPath);
-          } catch (e2: any) {
-            throw new Error('Texture failed: ' + (e2?.message || String(e2)));
-          }
-        }
-        setProgress(50);
 
-        // 2. Load GLB model
+        // 1. Load GLB model
         if (!modelPath.endsWith('.glb') && !modelPath.endsWith('.gltf')) {
           throw new Error('Unsupported model format, expected .glb');
         }
@@ -366,7 +310,7 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({
           gltfLoader.load(
             modelPath,
             (data) => resolve(data),
-            (evt) => setProgress(50 + Math.round((evt.loaded / (evt.total || 1)) * 45)),
+            (evt) => setProgress(10 + Math.round((evt.loaded / (evt.total || 1)) * 88)),
             (err: any) => reject(new Error('GLB load failed: ' + (err?.message || String(err))))
           );
         });
@@ -374,27 +318,31 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({
         setProgress(98);
         const model = gltf.scene as THREE.Object3D;
 
-        // 3. Normalize scale — fit within 2.2 units height
+        // 2. Normalize scale — fit within 2.2 units height
         const box = new THREE.Box3().setFromObject(model);
         const size = box.getSize(new THREE.Vector3());
         const maxDim = Math.max(size.x, size.y, size.z);
         const scaleFactor = 2.2 / maxDim;
         model.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
-        // 4. Re-compute bounding box after scaling
+        // 3. Re-compute bounding box after scaling
         const scaledBox = new THREE.Box3().setFromObject(model);
         const center = scaledBox.getCenter(new THREE.Vector3());
         const scaledMin = scaledBox.min;
 
-        // 5. Position model:
+        // 4. Position model:
         //    - Center horizontally (X, Z)
         //    - Place BOTTOM of model at PEDESTAL_TOP_Y (so model sits ON TOP of stage)
         model.position.x = -center.x;
         model.position.z = -center.z;
         model.position.y = PEDESTAL_TOP_Y - scaledMin.y;
 
-        // 6. Force-apply texture to all meshes
-        forceApplyTexture(model, loadedTexture!);
+        model.traverse((child) => {
+          if (child instanceof THREE.Mesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+          }
+        });
 
         scene.add(model);
         setProgress(100);
@@ -465,9 +413,8 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({
         else obj.material.dispose();
       });
       marbleTexture.dispose();
-      if (loadedTexture) loadedTexture.dispose();
     };
-  }, [modelPath, texturePath, fallbackType]);
+  }, [modelPath, fallbackType]);
 
   const resetCamera = () => {
     if (controlsRef.current) {
@@ -507,7 +454,7 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({
         }}>
           <Loader2 size={48} color="var(--gold-color)" style={{ animation: 'spin-slow 2s linear infinite' }} />
           <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--primary-dark)', fontSize: '1.3rem' }}>
-            Merging Textures…
+            Loading 3D Moorti…
           </h3>
           <div style={{ width: '200px', height: '4px', backgroundColor: 'var(--border-color)', borderRadius: '2px', overflow: 'hidden' }}>
             <div style={{ width: `${progress}%`, height: '100%', backgroundColor: 'var(--gold-color)', transition: 'width 0.3s ease' }} />
@@ -542,7 +489,7 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({
             pointerEvents: 'auto',
           }}>
             <Info size={13} color="var(--gold-color)" />
-            <span>{isUsingFallback ? 'Procedural Preview (360°)' : 'Texture-Merged 3D Moorti (360°)'}</span>
+            <span>{isUsingFallback ? 'Procedural Preview (360°)' : '3D Moorti (360°)'}</span>
           </div>
           <button
             onClick={resetCamera}
@@ -584,10 +531,9 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({
         }}>
           <AlertCircle size={16} color="var(--gold-color)" style={{ flexShrink: 0, marginTop: '2px' }} />
           <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: 0 }}>
-            <strong>Upload Guide:</strong> Place your model at{' '}
-            <code>public/assets/models/{fallbackType === 'ganesha' ? 'ganesh.glb' : 'krishna.glb'}</code> and texture at{' '}
-            <code>public/assets/textures/{fallbackType === 'ganesha' ? 'ganesh.jpg' : 'krishna.jpg'}</code>
-          </p>
+             <strong>Upload Guide:</strong> Place your model at{' '}
+             <code>public/assets/models/{fallbackType === 'ganesha' ? 'ganesh_merged-optimized.glb' : 'krishna_merged-optimized.glb'}</code>
+           </p>
         </div>
       )}
     </div>

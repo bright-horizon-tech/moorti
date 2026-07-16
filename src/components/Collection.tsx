@@ -12,7 +12,6 @@ interface Product {
   gallery: string[];
   videoUrl: string;
   modelPath: string;
-  texturePath: string;
   fallbackType: 'ganesha' | 'radha_krishna';
   specs: {
     material: string;
@@ -43,8 +42,7 @@ export const Collection: React.FC = () => {
         "./assets/images/ganesha.png"
       ],
       videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-hand-carving-a-stone-sculpture-40898-large.mp4", // Premium sample stone carving loop
-      modelPath: "./assets/models/ganesh.glb",
-      texturePath: "./assets/textures/ganesh.jpg",
+      modelPath: "./assets/models/ganesh_merged-optimized.glb",
       fallbackType: "ganesha",
       specs: {
         material: "AAA Grade White Makrana Marble",
@@ -67,8 +65,7 @@ export const Collection: React.FC = () => {
         "./assets/images/krishna.png"
       ],
       videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-artist-painting-details-on-a-clay-statue-41712-large.mp4", // Premium painting detail loop
-      modelPath: "./assets/models/krishna.glb",
-      texturePath: "./assets/textures/krishna.jpg",
+      modelPath: "./assets/models/krishna_merged-optimized.glb",
       fallbackType: "radha_krishna",
       specs: {
         material: "Premium Single-Block Statuario Makrana Marble",
@@ -377,7 +374,6 @@ export const Collection: React.FC = () => {
                   <div>
                     <ThreeViewer 
                       modelPath={selectedProduct.modelPath}
-                      texturePath={selectedProduct.texturePath}
                       fallbackType={selectedProduct.fallbackType}
                     />
                     <button
