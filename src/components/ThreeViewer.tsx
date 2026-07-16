@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { Loader2, AlertCircle, RotateCcw, Info } from 'lucide-react';
 
 interface ThreeViewerProps {
@@ -213,6 +214,9 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({
 
     // --- LOAD MODEL ---
     const gltfLoader = new GLTFLoader();
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
+    gltfLoader.setDRACOLoader(dracoLoader);
 
     const createProceduralFallback = () => {
       setIsUsingFallback(true);
@@ -413,6 +417,7 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({
         else obj.material.dispose();
       });
       marbleTexture.dispose();
+      dracoLoader.dispose();
     };
   }, [modelPath, fallbackType]);
 
