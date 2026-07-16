@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Loader2, AlertCircle, RotateCcw, Info } from 'lucide-react';
 
 interface ThreeViewerProps {
@@ -89,8 +90,13 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.4;
+    renderer.toneMappingExposure = 1.6;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    // --- Environment map (drives PBR reflections/specular on the optimized GLBs) ---
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    const envTexture = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environment = envTexture;
 
     containerRef.current.innerHTML = '';
     containerRef.current.appendChild(renderer.domElement);
@@ -410,6 +416,8 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({
       if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
       if (rendererRef.current) rendererRef.current.dispose();
       if (controlsRef.current) controlsRef.current.dispose();
+      pmremGenerator.dispose();
+      envTexture.dispose();
       scene.traverse((obj) => {
         if (!(obj instanceof THREE.Mesh)) return;
         obj.geometry.dispose();
