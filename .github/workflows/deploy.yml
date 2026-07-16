@@ -18,7 +18,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      GITHUB_PAGES_BASE: /${{ github.event.repository.name }}/
+      GITHUB_PAGES_BASE: ./
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

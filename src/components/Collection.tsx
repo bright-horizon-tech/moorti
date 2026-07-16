@@ -38,14 +38,13 @@ export const Collection: React.FC = () => {
       hindiName: "तेजस गणेश मूर्ति",
       shortDesc: "Prasthana Ganesha chiseled from single-block white Makrana marble with 24k gold leaf ornamentation.",
       longDesc: "Carved under strict compliance of the Ganesha Upanishad, the Tejas Ganesha Moorti showcases a sitting Lambodara posture. The statue features four arms holding the traditional attributes: a noose, elephant goad, broken tusk, and a bowl of sweet modakas. The surface is hand-sanded for over 80 hours to achieve an ultra-smooth marble texture, adorned with real 24k gold leaf highlighting his crown (mukut), sacred ornaments, and drapery borders.",
-      mainImage: "/assets/images/ganesha.png",
+      mainImage: "./assets/images/ganesha.png",
       gallery: [
-        "/assets/images/ganesha.png",
-        "/assets/images/ganesha_closeup.png"
+        "./assets/images/ganesha.png"
       ],
       videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-hand-carving-a-stone-sculpture-40898-large.mp4", // Premium sample stone carving loop
-      modelPath: "/assets/models/ganesh.glb",
-      texturePath: "/assets/textures/ganesh.jpg",
+      modelPath: "./assets/models/ganesh.glb",
+      texturePath: "./assets/textures/ganesh.jpg",
       fallbackType: "ganesha",
       specs: {
         material: "AAA Grade White Makrana Marble",
@@ -63,13 +62,13 @@ export const Collection: React.FC = () => {
       hindiName: "आनंद कृष्ण मूर्ति",
       shortDesc: "Divine Lord Krishna sculpted in single-block white Makrana marble with traditional hand-painting and gold details.",
       longDesc: "Representing the ultimate divine plays (celestial leelas), the Ananda Krishna Moorti is chiseled from a single block of pure Makrana marble. Krishna stands in a graceful Tribhanga (three-bend) posture playing his celestial flute with a peacock carved by his side. The statue is adorned with fine jewelry carvings and painted by Jaipur miniature artists using natural color highlights and fine real gold line borders.",
-      mainImage: "/assets/images/krishna.png",
+      mainImage: "./assets/images/krishna.png",
       gallery: [
-        "/assets/images/krishna.png"
+        "./assets/images/krishna.png"
       ],
       videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-artist-painting-details-on-a-clay-statue-41712-large.mp4", // Premium painting detail loop
-      modelPath: "/assets/models/krishna.glb",
-      texturePath: "/assets/textures/krishna.jpg",
+      modelPath: "./assets/models/krishna.glb",
+      texturePath: "./assets/textures/krishna.jpg",
       fallbackType: "radha_krishna",
       specs: {
         material: "Premium Single-Block Statuario Makrana Marble",

@@ -585,8 +585,8 @@ export const ThreeViewer: React.FC<ThreeViewerProps> = ({
           <AlertCircle size={16} color="var(--gold-color)" style={{ flexShrink: 0, marginTop: '2px' }} />
           <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: 0 }}>
             <strong>Upload Guide:</strong> Place your model at{' '}
-            <code>/public/assets/models/{fallbackType === 'ganesha' ? 'ganesh.glb' : 'krishna.glb'}</code> and texture at{' '}
-            <code>/public/assets/textures/{fallbackType === 'ganesha' ? 'ganesh.jpg' : 'krishna.jpg'}</code>
+            <code>public/assets/models/{fallbackType === 'ganesha' ? 'ganesh.glb' : 'krishna.glb'}</code> and texture at{' '}
+            <code>public/assets/textures/{fallbackType === 'ganesha' ? 'ganesh.jpg' : 'krishna.jpg'}</code>
           </p>
         </div>
       )}

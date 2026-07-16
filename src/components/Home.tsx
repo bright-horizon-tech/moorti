@@ -9,7 +9,7 @@ interface HomeProps {
 const JaipurHeroBg: React.FC = () => (
   <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
     <img
-      src="/assets/images/Hava mahal.png"
+      src="./assets/images/Hava mahal.png"
       alt=""
       aria-hidden="true"
       style={{
@@ -275,7 +275,7 @@ export const Home: React.FC<HomeProps> = ({ setActivePage }) => {
             >
               <div style={{ height: '420px', overflow: 'hidden', position: 'relative', backgroundColor: '#eae6df' }}>
                 <img 
-                  src="/assets/images/ganesha.png" 
+                  src="./assets/images/ganesha.png" 
                   alt="Tejas Ganesha" 
                   style={{
                     width: '100%',
@@ -354,7 +354,7 @@ export const Home: React.FC<HomeProps> = ({ setActivePage }) => {
             >
               <div style={{ height: '420px', overflow: 'hidden', position: 'relative', backgroundColor: '#eae6df' }}>
                 <img 
-                  src="/assets/images/krishna.png" 
+                  src="./assets/images/krishna.png" 
                   alt="Ananda Krishna Moorti" 
                   style={{
                     width: '100%',
